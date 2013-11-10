@@ -69,11 +69,15 @@ class MST
 {
 public:
     explicit MST(Graph graph) : _isProcessed(false), _graph(graph){}
+
+    // get total cost of the minimum spanning tree 
     double cost();
+
+    // get total edges of the minimum spanning tree
     std::vector<Edge> tree();
 private:
-    bool _process();
-    bool _isProcessed;
+    bool _process();  // meta functions to do the real work
+    bool _isProcessed; // check the MST is processed or not
     double _cost;
     std::vector<Edge> _tree;
     Graph _graph;
@@ -82,6 +86,7 @@ private:
 
 Graph* generate_graph_from_file(const std::string& filename);
 
+// used in priority queue to compare to edges
 struct EdgeCmp{
     bool operator() (const Edge& a, const Edge& b){
         return a.value > b.value;
@@ -89,6 +94,9 @@ struct EdgeCmp{
 };
 
 double MST::cost(){
+    // put the process function here, making the work done when 
+    // it is really needed. and "user" do not need call process
+    // function explicitly.
     if(this->_isProcessed == false){
         assert(true == this->_process());
     }
@@ -102,6 +110,7 @@ std::vector<Edge> MST::tree(){
     return this->_tree;
 }
 
+// put all edges in priority queue
 static void init_priority_queue(std::priority_queue<Edge, std::vector<Edge>, EdgeCmp>& pq, Graph& graph){
     unsigned int num_of_vertex = graph.V();
 
@@ -126,6 +135,7 @@ static bool get_miminum_edge(std::priority_queue<Edge, std::vector<Edge>, EdgeCm
     return true;
 }
 
+// the implementation of B.Kruskal algorithmn.
 bool MST::_process(){
     std::priority_queue<Edge, std::vector<Edge>, EdgeCmp > pq;
     std::vector<Edge> tree;
@@ -141,9 +151,14 @@ bool MST::_process(){
         if(false == get_miminum_edge(pq, e)){
             break;
         }
+        
+        // if not both vertices of a new edge already selected,
+        // means there is no circle path, add it to miminum spanning tree
         if(false == selected_vertex.at(e.from) ||
            false == selected_vertex.at(e.to)){
 
+            // if both vertices are new, we should add twice.
+            // we add one here, add the other later
             if(false == selected_vertex.at(e.from) &&
                false == selected_vertex.at(e.to)){
                 ++num_of_selected_vertex;
@@ -153,11 +168,14 @@ bool MST::_process(){
             cost += e.value;
             selected_vertex.at(e.from) = true;
             selected_vertex.at(e.to) = true;
+            
+            // if we select a edge, 1 vertext is new at least. 
             ++num_of_selected_vertex;
 
         }
     }
 
+    // means the graph is not a connected graph
     if(num_of_selected_vertex < num_of_vertex){
         return false;
     }
@@ -173,6 +191,7 @@ Graph* generate_graph_from_file(const std::string& filename){
     unsigned int num_of_vertex = 0;
     Graph * graph;
     std::ifstream fin(filename.c_str());
+
     if(fin.is_open()){
         fin >> num_of_vertex;
         graph = new Graph(num_of_vertex);
@@ -180,6 +199,8 @@ Graph* generate_graph_from_file(const std::string& filename){
         while(!fin.eof()){
             std::string line = "";
             std::getline(fin, line);
+            
+            // ignore the empty line
             if(line.empty())
                 continue;
             std::istringstream iss(line);
@@ -290,7 +311,7 @@ int main(int argc, char* argv[])
 {
     Graph * g = generate_graph_from_file("mst_data.txt");
     if(NULL == g){
-        std::cout << "Can not find mst_data.txt in current directory" << std::endl;
+        std::cout << "Can not open mst_data.txt in current directory" << std::endl;
         return -1;
     }
 
