@@ -1,3 +1,11 @@
+// 1. I choose B.Kruskal algorithmn to solve MST problem
+// 2. The main function first read a test file to generate a graph.
+//    then get MST cost, and tree.
+// 3. When implemete the B.Kruskal MST, I do not put the main task in constructor 
+//    or a function "user" should invoke manmually. I think not process until "user" really 
+//    get the minimum cost or the tree is just the right time.
+//    
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
