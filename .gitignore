@@ -3,6 +3,7 @@ output
 *.o
 cmake-build-debug/
 .DS_Store
+*.swp
 # Compiled Object files
 *.slo
 *.lo
