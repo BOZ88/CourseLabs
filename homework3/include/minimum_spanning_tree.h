@@ -9,7 +9,14 @@ namespace cpp2c{
 class MST
 {
 public:
-    explicit MST(Graph graph) : _isProcessed(false), _graph(graph){}
+    virtual double cost() = 0;
+    virtual std::vector<Edge> tree() = 0;
+};
+
+class KruskalMST : public MST
+{
+public:
+    explicit KruskalMST(Graph graph) : _isProcessed(false), _cost(0), _graph(graph){}
     double cost();
     std::vector<Edge> tree();
 private:
@@ -18,6 +25,14 @@ private:
     double _cost;
     std::vector<Edge> _tree;
     Graph _graph;
+};
+
+class PrimMST : public MST
+{
+public:
+    explicit PrimMST(Graph graph);
+    double cost();
+    std::vector<Edge> tree();
 };
 
 }

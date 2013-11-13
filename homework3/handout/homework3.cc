@@ -1,15 +1,16 @@
 // 1. I choose B.Kruskal algorithmn to solve MST problem
 // 2. The main function first read a test file to generate a graph.
 //    then get MST cost, and tree.
-// 3. When implemete the B.Kruskal MST, I do not put the main task in constructor 
-//    or a function "user" should invoke manmually. I think not process until "user" really 
+// 3. When implemete the B.Kruskal MST, I do not put the main task in constructor
+//    or a function "user" should invoke manmually. I think not process until "user" really
 //    get the minimum cost or the tree is just the right time.
-//    
+//
 
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <set>
 #include <queue>
 #include <map>
 #include <ctime>
@@ -17,6 +18,10 @@
 #include <cmath>
 #include <cassert>
 
+using std::vector;
+using std::map;
+using std::set;
+using std::priority_queue;
 
 class Edge{
 public:
@@ -68,9 +73,16 @@ private:
 class MST
 {
 public:
-    explicit MST(Graph graph) : _isProcessed(false), _graph(graph){}
+    virtual double cost() = 0;
+    virtual std::vector<Edge> tree() = 0;
+};
 
-    // get total cost of the minimum spanning tree 
+class KruskalMST : public MST
+{
+public:
+    explicit KruskalMST(Graph graph) : _isProcessed(false), _cost(0), _graph(graph) {}
+
+    // get total cost of the minimum spanning tree
     double cost();
 
     // get total edges of the minimum spanning tree
@@ -83,7 +95,6 @@ private:
     Graph _graph;
 };
 
-
 Graph* generate_graph_from_file(const std::string& filename);
 
 // used in priority queue to compare to edges
@@ -93,21 +104,14 @@ struct EdgeCmp{
     }
 };
 
-double MST::cost(){
-    // put the process function here, making the work done when 
+double KruskalMST::cost(){
+    // put the process function here, making the work done when
     // it is really needed. and "user" do not need call process
     // function explicitly.
     if(this->_isProcessed == false){
         assert(true == this->_process());
     }
     return this->_cost;
-}
-
-std::vector<Edge> MST::tree(){
-    if(this->_isProcessed == false){
-        assert(true == this->_process());
-    }
-    return this->_tree;
 }
 
 // put all edges in priority queue
@@ -135,54 +139,57 @@ static bool get_miminum_edge(std::priority_queue<Edge, std::vector<Edge>, EdgeCm
     return true;
 }
 
-// the implementation of B.Kruskal algorithmn.
-bool MST::_process(){
-    std::priority_queue<Edge, std::vector<Edge>, EdgeCmp > pq;
-    std::vector<Edge> tree;
+vector<Edge> KruskalMST::tree(){
+    if(this->_isProcessed == false){
+        assert(true == this->_process());
+    }
+    return this->_tree;
+}
+
+class UnionFind
+{
+    vector<unsigned int> _parent;
+public:
+    explicit UnionFind(unsigned int num){
+        this->_parent = vector<unsigned int>(num);
+        for(unsigned int i = 0; i < num; ++i)
+            this->make_set(i);
+    }
+    void make_set(unsigned int x){
+        this->_parent[x] = x;
+    }
+    unsigned int find(unsigned int x){
+        while(x != _parent[x]){
+            x = _parent[x];
+        }
+        return x;
+    }
+    void do_union(unsigned int x, unsigned int y){
+        int root_x = this->find(x);
+        int root_y = this->find(y);
+        this->_parent[root_y] = root_x;
+    }
+};
+
+bool KruskalMST::_process(){
     unsigned int num_of_vertex = this->_graph.V();
-    std::vector<bool> selected_vertex = std::vector<bool>(num_of_vertex, false);
-    unsigned int num_of_selected_vertex = 0;
-    double cost = 0;
+    priority_queue<Edge, vector<Edge>, EdgeCmp > pq;
+    vector<bool> selected_vertex = vector<bool>(num_of_vertex, false);
+    UnionFind uf(num_of_vertex);
+    vector<Edge> tree;
+    Edge tmp_edge;
 
     init_priority_queue(pq, this->_graph);
 
-    while(num_of_selected_vertex < num_of_vertex){
-        Edge e;
-        if(false == get_miminum_edge(pq, e)){
-            break;
+    while(get_miminum_edge(pq, tmp_edge)){
+        if(uf.find(tmp_edge.from) != uf.find(tmp_edge.to)){
+            uf.do_union(tmp_edge.from, tmp_edge.to);
+            this->_tree.push_back(tmp_edge);
+            this->_cost += tmp_edge.value;
         }
-        
-        // if not both vertices of a new edge already selected,
-        // means there is no circle path, add it to miminum spanning tree
-        if(false == selected_vertex.at(e.from) ||
-           false == selected_vertex.at(e.to)){
-
-            // if both vertices are new, we should add twice.
-            // we add one here, add the other later
-            if(false == selected_vertex.at(e.from) &&
-               false == selected_vertex.at(e.to)){
-                ++num_of_selected_vertex;
-            }
-
-            tree.push_back(e);
-            cost += e.value;
-            selected_vertex.at(e.from) = true;
-            selected_vertex.at(e.to) = true;
-            
-            // if we select a edge, 1 vertext is new at least. 
-            ++num_of_selected_vertex;
-
-        }
-    }
-
-    // means the graph is not a connected graph
-    if(num_of_selected_vertex < num_of_vertex){
-        return false;
     }
 
     this->_isProcessed = true;
-    this->_cost = cost;
-    this->_tree = tree;
     return true;
 }
 
@@ -199,7 +206,7 @@ Graph* generate_graph_from_file(const std::string& filename){
         while(!fin.eof()){
             std::string line = "";
             std::getline(fin, line);
-            
+
             // ignore the empty line
             if(line.empty())
                 continue;
@@ -315,15 +322,15 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    MST mst = MST(*g);
+    KruskalMST mst = KruskalMST(*g);
     double cost = mst.cost();
     std::vector<Edge> mstree = mst.tree();
     std::cout << "minimum spanning tree cost is :" << cost << std::endl;
 
     std::cout << "minimum spanning tree edge is :" << std::endl;
     for(unsigned long i = 0; i < mstree.size(); ++i){
-        std::cout << " edge from " << mstree.at(i).from 
-                  << " to " << mstree.at(i).to << " cost " 
+        std::cout << " edge from " << mstree.at(i).from
+                  << " to " << mstree.at(i).to << " cost "
                   << mstree.at(i).value << std::endl;
     }
 

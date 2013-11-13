@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
     FLAGS_logtostderr = 1;
 
     Graph * g = generate_graph_from_file("test/SampleTestData_mst_data.txt");
-    MST mst = MST(*g);
+    KruskalMST mst = KruskalMST(*g);
     double cost = mst.cost();
     std::vector<Edge> mstree = mst.tree();
     LOG(INFO) << "minimum spanning tree cost is " << cost;
