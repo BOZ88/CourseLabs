@@ -4,7 +4,7 @@
 
     first line is the number of vertices
     the following are edges as format of (from_vertex, to_vertex, cost)
-    cost value simply choose 1 in generate function
+    cost value simply choose 1
 
     for example: 7 X 7 hex board
     . - . - . - . - . - . - .
