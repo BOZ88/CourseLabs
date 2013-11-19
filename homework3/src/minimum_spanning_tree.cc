@@ -1,4 +1,3 @@
-// totally wrong, need rework
 #include <vector>
 #include <map>
 #include <set>
@@ -63,7 +62,6 @@ static bool get_miminum_edge(
 
 class UnionFind
 {
-    vector<unsigned int> _parent;
 public:
     explicit UnionFind(unsigned int num){
         this->_parent = vector<unsigned int>(num);
@@ -84,6 +82,8 @@ public:
         int root_y = this->find(y);
         this->_parent[root_y] = root_x;
     }
+private:
+    vector<unsigned int> _parent;
 };
 
 bool KruskalMST::_process(){

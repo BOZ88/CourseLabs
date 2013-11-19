@@ -11,12 +11,14 @@ class MST
 public:
     virtual double cost() = 0;
     virtual std::vector<Edge> tree() = 0;
+    virtual ~MST() {};
 };
 
 class KruskalMST : public MST
 {
 public:
-    explicit KruskalMST(Graph graph) : _isProcessed(false), _cost(0), _graph(graph){}
+    explicit KruskalMST(Graph graph) : 
+        _isProcessed(false), _cost(0), _graph(graph){}
     double cost();
     std::vector<Edge> tree();
 private:
