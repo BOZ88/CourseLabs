@@ -1,8 +1,10 @@
 #!/bin/python
 '''
-    generate a hex board file describe the graph
-    first line is number of vertices
-    below are edges as format of (from_vertex, to_vertex, cost)
+    generate a graph file which describes the hex board.
+
+    first line is the number of vertices
+    the following are edges as format of (from_vertex, to_vertex, cost)
+    cost value simply choose 1 in generate function
 
     for example: 7 X 7 hex board
     . - . - . - . - . - . - .
