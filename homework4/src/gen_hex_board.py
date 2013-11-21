@@ -24,7 +24,7 @@
 
 
 def gen_hex_board(board_size):
-    '''generate a bex board (board_size X board_size)'''
+    '''generate a hex board (board_size X board_size)'''
 
     assert(board_size > 0)
     vertex_num_tatal = board_size * board_size
@@ -49,3 +49,5 @@ def gen_hex_board(board_size):
 
 if __name__ == "__main__":
     gen_hex_board(7)
+
+

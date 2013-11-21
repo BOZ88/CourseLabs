@@ -27,11 +27,11 @@ The blue player must make a connected set of blue hexagons from east to west. Th
 
  	The board can be drawn in ASCII as follows: (7 x 7 board)
 	
- 	X - . - . - . - . - . - . 
+	X - . - . - . - . - . - . 
 	 \ / \ / \ / \ / \ / \ / \ 
 	  . - . - . - . - . - . - .
 	   \ / \ / \ / \ / \ / \ / \ 
-   	    . - . - . - . - . - . - .
+	    . - . - . - . - . - . - .
          \ / \ / \ / \ / \ / \ / \ 
 	      . - . - . - . - . - . - . 
 	       \ / \ / \ / \ / \ / \ / \ 
