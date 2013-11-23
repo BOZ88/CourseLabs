@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <glog/logging.h>
 #include "../include/graph.h"
+#include "../include/util.h"
 
 
 namespace cpp2c{
@@ -75,6 +76,8 @@ Graph* generate_graph_from_file(const std::string& filename){
     } else {
         LOG(WARNING) << "can not open file " << filename;
     }
+
+    SafeDelete(graph);
     return NULL;
 }
 

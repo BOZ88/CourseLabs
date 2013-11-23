@@ -32,8 +32,10 @@ clean:
 	rm -rf  src/*.o $(EXECUTABLES);
 
 m : \
-	src/main.o \
+	src/util.o \
 	src/graph.o \
+	src/hex.o \
+	src/main.o \
 
 	$(CC) $^ -o $@ $(LIB)
 	
