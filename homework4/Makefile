@@ -34,6 +34,7 @@ clean:
 m : \
 	src/util.o \
 	src/graph.o \
+	src/shortest_path.o \
 	src/hex.o \
 	src/main.o \
 
