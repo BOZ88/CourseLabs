@@ -22,6 +22,7 @@ private:
     void userChooseColor();
     void makeAMove(const std::string& color, const unsigned int, const unsigned int);
     void show_board();
+    void play();
     bool isMoveValid(unsigned int, unsigned int);
     bool isWon(const std::string& color);
 

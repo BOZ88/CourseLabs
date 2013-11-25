@@ -103,7 +103,7 @@ std::vector<unsigned int> ShortestPath::path(unsigned int u, unsigned int w){
     }
 
     if(closeset.find(w) == closeset.end()){
-        LOG(INFO) << "not find a path";
+        VLOG(VERBOSITY_MID) << "not find a path";
         return std::vector<unsigned int>(0);
     }
 

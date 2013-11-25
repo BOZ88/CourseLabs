@@ -25,7 +25,7 @@ bool HEX::init(){
         return false;
 
     this->_blue_graph = new Graph(HEX_BOARD_SIZE * HEX_BOARD_SIZE);
-    
+
     this->_red_graph = new Graph(HEX_BOARD_SIZE * HEX_BOARD_SIZE);
 
     for(unsigned int i = 0; i < HEX_BOARD_SIZE; ++i){
@@ -46,7 +46,7 @@ void HEX::release(){
 }
 
 void HEX::userChooseColor(){
-    string color;
+    string color = "";
     while(color != "b" && color != "r"){
         cout << "Type 'b' to choose BLUE which going first, or " << endl;
         cout << "Type 'r' to choose RED" << endl;
@@ -154,19 +154,12 @@ void HEX::makeAMove(const string& color, const unsigned int x, const unsigned in
     }
 }
 
-void HEX::start(){
-    if(!this->init()){
-        return;
-    }
-
-    greeting();
-    this->userChooseColor();
-
-    while(true){
-
+void HEX::play(){
+     while(true){
         this->show_board();
-        cout << "input 2 number (example: 12 34) to make a move, "
+        cout << "input 2 number (example: 2 3) to make a move, "
              << "<CTRL - C> to quit:" << endl;
+
         string num1;
         string num2;
 
@@ -177,13 +170,34 @@ void HEX::start(){
         if(!isDigits(num2))
             continue;
 
-        this->makeAMove(this->_userColor, static_cast<unsigned int>(atoi(num1.c_str())),
+        this->makeAMove(this->_userColor,
+                static_cast<unsigned int>(atoi(num1.c_str())),
                 static_cast<unsigned int>(atoi(num2.c_str())));
-        if(this->isWon(this->_userColor))
+
+        if(this->isWon(this->_userColor)){
+            this->show_board();
+            break;
+        }
+    }
+}
+
+void HEX::start(){
+    greeting();
+    while(true){
+        if(!this->init()){
+            return;
+        }
+
+        this->userChooseColor();
+        this->play();
+        this->release();
+
+        string s = "";
+        cout << "You wanna play again? Type n to quit" << endl;
+        cin >> s;
+        if(s == "n")
             break;
     }
-
-    this->release();
 }
 
 } // end namespace cpp2c
