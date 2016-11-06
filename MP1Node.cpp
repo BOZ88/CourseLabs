@@ -53,8 +53,7 @@ int MP1Node::recvLoop() {
  * DESCRIPTION: Enqueue the message from Emulnet into the queue
  */
 int MP1Node::enqueueWrapper(void *env, char *buff, int size) {
-	Queue q;
-	return q.enqueue((queue<q_elt> *)env, (void *)buff, size);
+	return Queue::enqueue((queue<q_elt> *)env, (void *)buff, size);
 }
 
 /**
@@ -215,9 +214,18 @@ void MP1Node::checkMessages() {
  * DESCRIPTION: Message handler for different message types
  */
 bool MP1Node::recvCallBack(void *env, char *data, int size ) {
-	/*
-	 * Your code goes here
-	 */
+    MessageHdr *msg = (MessageHdr*)data;
+    if (msg->msgType == JOINREQ) {
+        Address from;
+        from.init();
+        long heartbeat = 0;
+
+        memcpy(&(from.addr), (char *)(msg + 1), sizeof(memberNode->addr.addr));
+        memcpy(&heartbeat, (char *)(msg + 1) + 1 + sizeof(memberNode->addr.addr), sizeof(long));
+
+        this->log->logNodeAdd(&memberNode->addr, &from);
+    }
+
 }
 
 /**
