@@ -216,16 +216,45 @@ void MP1Node::checkMessages() {
 bool MP1Node::recvCallBack(void *env, char *data, int size ) {
     MessageHdr *msg = (MessageHdr*)data;
     if (msg->msgType == JOINREQ) {
-        Address from;
-        from.init();
-        long heartbeat = 0;
-
-        memcpy(&(from.addr), (char *)(msg + 1), sizeof(memberNode->addr.addr));
-        memcpy(&heartbeat, (char *)(msg + 1) + 1 + sizeof(memberNode->addr.addr), sizeof(long));
-
-        this->log->logNodeAdd(&memberNode->addr, &from);
+        handleJoinReq(msg);
+    } else if (msg->msgType == JOINREP) {
+        this->memberNode->inGroup = true;
     }
 
+}
+
+void MP1Node::handleJoinReq(const MessageHdr *msg) const {
+    Address from;
+    from.init();
+    long heartbeat = 0;
+
+    memcpy(&(from.addr), (char *)(msg + 1), sizeof(memberNode->addr.addr));
+    memcpy(&heartbeat, (char *)(msg + 1) + 1 + sizeof(memberNode->addr.addr), sizeof(long));
+
+    log->logNodeAdd(&memberNode->addr, &from);
+
+    int id = 0;
+    int port = 0;
+    int timestamp = par->getcurrtime();
+    memcpy(&id, &from.addr[0], sizeof(int));
+    memcpy(&port, &from.addr[4], sizeof(short));
+
+    int mCount = memberNode->memberList.size();
+
+    MessageHdr *resMsg;
+    size_t resMsgsize = sizeof(MessageHdr) + sizeof(from.addr) + sizeof(long) + 1;
+    resMsg = (MessageHdr *) malloc(resMsgsize * sizeof(char));
+    resMsg->msgType = JOINREP;
+
+    memcpy((char *)(msg+1), &memberNode->addr.addr, sizeof(memberNode->addr.addr));
+    memcpy((char *)(msg+1) + 1 + sizeof(memberNode->addr.addr), &memberNode->heartbeat, sizeof(long));
+
+    // send JOINREP message to new member
+    emulNet->ENsend(&memberNode->addr, &from, (char *)resMsg, resMsgsize);
+    free(resMsg);
+
+    MemberListEntry entry = MemberListEntry(id, port, heartbeat, timestamp);
+    memberNode->memberList.push_back(entry);
 }
 
 /**
