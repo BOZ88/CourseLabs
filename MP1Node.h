@@ -50,8 +50,6 @@ typedef struct MessageHdr {
  * DESCRIPTION: Class implementing Membership protocol functionalities for failure detection
  */
 class MP1Node {
- public:
-  int myPos;
  private:
   EmulNet *emulNet;
   Log *log;
@@ -74,15 +72,19 @@ class MP1Node {
   void checkMessages();
   bool recvCallBack(void *env, char *data, int size);
   void nodeLoopOps();
-  int isNullAddress(Address *addr);
+//  int isNullAddress(Address *addr);
   Address getJoinAddress();
   void initMemberListTable(Member *memberNode);
-  void printAddress(Address *addr);
+//  void printAddress(Address *addr);
   virtual ~MP1Node();
 
   void handleJoinReq(const MessageHdr *msg) const;
-
   void handleJoinRep(const MessageHdr *msg);
+  void handleInquiry(const MessageHdr *msg);
+  bool isInLocalMemberList(MemberListEntry *entry);
+  bool isAddressEqual(const Address *addr, const Address *other) const;
+  MemberListEntry *getMyEntry() const;
+  Address getAddressFromEntry(MemberListEntry &entry) const;
 };
 
 #endif /* _MP1NODE_H_ */
