@@ -166,9 +166,8 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
  * DESCRIPTION: Wind up this node and clean up state
  */
 int MP1Node::finishUpThisNode() {
-  /*
-   * Your code goes here
-   */
+  memberNode->inGroup = false;
+  free(memberNode);
 }
 
 /**
@@ -263,8 +262,8 @@ void MP1Node::handleInquiry(const MessageHdr *msg) {
 
   for (unsigned int i = 0; i < memberSize; i++) {
     MemberListEntry *inquiryEntry = &memberList[i];
-    if (isInLocalMemberList(inquiryEntry)) {
-      MemberListEntry *localEntry = &memberNode->memberList.at(i);
+    MemberListEntry *localEntry = findLocalMember(inquiryEntry);
+    if (localEntry != NULL) {
       assert(inquiryEntry->id == localEntry->id);
       if (inquiryEntry->heartbeat > localEntry->heartbeat) {
         localEntry->heartbeat = inquiryEntry->heartbeat;
@@ -394,9 +393,13 @@ void MP1Node::nodeLoopOps() {
   MemberListEntry *myEntry = getMyEntry();
   assert(myEntry != NULL);
 
+  vector<MemberListEntry> liveEntryList;
+  findLiveMember(liveEntryList);
+
   myEntry->heartbeat = memberNode->heartbeat;
+  myEntry->timestamp = par->getcurrtime();
   MessageHdr *msg;
-  size_t memberSize = memberNode->memberList.size();
+  size_t memberSize = liveEntryList.size();
 
   int msgsize = sizeof(MessageHdr)
       + sizeof(sizeof(char) * 6) // addr
@@ -413,24 +416,32 @@ void MP1Node::nodeLoopOps() {
   shiftPos += sizeof(size_t);
   memcpy((char *) (msg + 1) + shiftPos, &memberSize, sizeof(size_t));
   shiftPos += sizeof(size_t);
-  memcpy((char *) (msg + 1) + shiftPos, memberNode->memberList.data(), sizeof(MemberListEntry) * memberSize);
+  memcpy((char *) (msg + 1) + shiftPos, liveEntryList.data(), sizeof(MemberListEntry) * memberSize);
 
   for (vector<MemberListEntry>::iterator iter = memberNode->memberList.begin();
       iter != memberNode->memberList.end(); iter++) {
-    if (myEntry->id == iter->id) {
-      continue;
-    }
-    Address address = Address();
-    address.init();
 
-    memcpy(address.addr, &iter->id, sizeof(int));
-    memcpy(&address.addr[4], &iter->port, sizeof(short));
+    if (iter->timestamp + TREMOVE < par->getcurrtime()) {
+      Address addr = getAddressFromEntry(*iter);
+      log->logNodeRemove(&memberNode->addr, &addr);
+    }
+
+    Address address = getAddressFromEntry(*iter);
     emulNet->ENsend(&memberNode->addr, &address, (char *) msg, msgsize);
   }
   free(msg);
 
   return;
 }
+void MP1Node::findLiveMember(vector<MemberListEntry>& liveEntryList) {
+  for (vector<MemberListEntry>::iterator iter = memberNode->memberList.begin();
+       iter != memberNode->memberList.end(); iter++) {
+    if (iter->timestamp + TFAIL > par->getcurrtime()) {
+      liveEntryList.push_back(*iter);
+    }
+  }
+}
+
 MemberListEntry *MP1Node::getMyEntry() const {
   MemberListEntry *myEntry = NULL;
   int id = 0;
@@ -445,15 +456,13 @@ MemberListEntry *MP1Node::getMyEntry() const {
   return myEntry;
 }
 
-bool MP1Node::isInLocalMemberList(MemberListEntry *entry) {
-  bool isIn = false;
+MemberListEntry * MP1Node::findLocalMember(MemberListEntry *entry) {
   for (unsigned int i = 0; i < memberNode->memberList.size(); i++) {
-    MemberListEntry *e = &(memberNode->memberList.at(i));
-    if (e->id == entry->id) {
-      isIn = true;
+    if (memberNode->memberList.at(i).id == entry->id) {
+      return &memberNode->memberList.at(i);
     }
   }
-  return isIn;
+  return NULL;
 }
 
 /**
@@ -500,5 +509,5 @@ void MP1Node::initMemberListTable(Member *memberNode) {
 //}
 
 bool MP1Node::isAddressEqual(const Address *addr, const Address *other) const {
-  return (0 == memcmp((char *) &(addr->addr), (char *) &(other->addr), sizeof(char)*6));
+  return (0 == memcmp((char *) &(addr->addr), (char *) &(other->addr), sizeof(char) * 6));
 }

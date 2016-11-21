@@ -31,8 +31,7 @@
 enum MsgTypes {
   JOINREQ,
   JOINREP,
-  INQUIRY,
-  DUMMYLASTMSGTYPE
+  INQUIRY
 };
 
 /**
@@ -81,10 +80,11 @@ class MP1Node {
   void handleJoinReq(const MessageHdr *msg) const;
   void handleJoinRep(const MessageHdr *msg);
   void handleInquiry(const MessageHdr *msg);
-  bool isInLocalMemberList(MemberListEntry *entry);
+  MemberListEntry * findLocalMember(MemberListEntry *entry);
   bool isAddressEqual(const Address *addr, const Address *other) const;
   MemberListEntry *getMyEntry() const;
   Address getAddressFromEntry(MemberListEntry &entry) const;
+  void findLiveMember(vector<MemberListEntry> &liveEntryList);
 };
 
 #endif /* _MP1NODE_H_ */
