@@ -424,6 +424,7 @@ void MP1Node::nodeLoopOps() {
     if (iter->timestamp + TREMOVE < par->getcurrtime()) {
       Address addr = getAddressFromEntry(*iter);
       log->logNodeRemove(&memberNode->addr, &addr);
+      memberNode->memberList.erase(iter);
     }
 
     Address address = getAddressFromEntry(*iter);
