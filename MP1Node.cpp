@@ -421,6 +421,10 @@ void MP1Node::nodeLoopOps() {
   for (vector<MemberListEntry>::iterator iter = memberNode->memberList.begin();
       iter != memberNode->memberList.end(); iter++) {
 
+    if (rand() % 6 != 0) {
+      continue;
+    }
+
     if (iter->timestamp + TREMOVE < par->getcurrtime()) {
       Address addr = getAddressFromEntry(*iter);
       log->logNodeRemove(&memberNode->addr, &addr);
