@@ -419,21 +419,24 @@ void MP1Node::nodeLoopOps() {
   memcpy((char *) (msg + 1) + shiftPos, liveEntryList.data(), sizeof(MemberListEntry) * memberSize);
 
   for (vector<MemberListEntry>::iterator iter = memberNode->memberList.begin();
-      iter != memberNode->memberList.end(); iter++) {
+       iter != memberNode->memberList.end(); ) {
 
-    if (rand() % 6 != 0) {
+    if (rand() % 2 != 0) {
       continue;
     }
 
     if (iter->timestamp + TREMOVE < par->getcurrtime()) {
       Address addr = getAddressFromEntry(*iter);
       log->logNodeRemove(&memberNode->addr, &addr);
-      memberNode->memberList.erase(iter);
+      iter = memberNode->memberList.erase(iter);
+    } else {
+      Address address = getAddressFromEntry(*iter);
+      emulNet->ENsend(&memberNode->addr, &address, (char *) msg, msgsize);
+      iter++;
     }
 
-    Address address = getAddressFromEntry(*iter);
-    emulNet->ENsend(&memberNode->addr, &address, (char *) msg, msgsize);
   }
+
   free(msg);
 
   return;
