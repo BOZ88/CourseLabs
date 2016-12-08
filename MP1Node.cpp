@@ -167,7 +167,6 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr) {
  */
 int MP1Node::finishUpThisNode() {
   memberNode->inGroup = false;
-  free(memberNode);
 }
 
 /**
@@ -254,10 +253,10 @@ void MP1Node::handleInquiry(const MessageHdr *msg) {
   memcpy(memberList, (char *) (msg + 1) + currentPos, sizeof(MemberListEntry) * memberSize);
 
 #ifdef DEBUGLOG
-  char s[100] = {0};
-  sprintf(s, "inquiry from %d.%d.%d.%d:%d", from.addr[0], from.addr[1], from.addr[2],
-          from.addr[3], *(short *) &from.addr[4]);
-  log->LOG(&memberNode->addr, s);
+//  char s[100] = {0};
+//  sprintf(s, "inquiry from %d.%d.%d.%d:%d", from.addr[0], from.addr[1], from.addr[2],
+//          from.addr[3], *(short *) &from.addr[4]);
+//  log->LOG(&memberNode->addr, s);
 #endif
 
   for (unsigned int i = 0; i < memberSize; i++) {
@@ -287,9 +286,9 @@ void MP1Node::handleJoinRep(const MessageHdr *msg) {
   assert(memberNode->memberList.size() == 0);
   memberNode->inGroup = true;
 
-#ifdef DEBUGLOG
-  log->LOG(&memberNode->addr, "handleJoinRep");
-#endif
+//#ifdef DEBUGLOG
+//  log->LOG(&memberNode->addr, "handleJoinRep");
+//#endif
 
   Address from;
   from.init();
@@ -384,11 +383,11 @@ void MP1Node::handleJoinReq(const MessageHdr *msg) const {
  */
 void MP1Node::nodeLoopOps() {
   memberNode->heartbeat++;
-#ifdef DEBUGLOG
-  string s = to_string(memberNode->heartbeat);
-  s = "heartbeat " + s;
-  log->LOG(&memberNode->addr, s.c_str());
-#endif
+//#ifdef DEBUGLOG
+//  string s = to_string(memberNode->heartbeat);
+//  s = "heartbeat " + s;
+//  log->LOG(&memberNode->addr, s.c_str());
+//#endif
 
   MemberListEntry *myEntry = getMyEntry();
   assert(myEntry != NULL);
@@ -421,9 +420,9 @@ void MP1Node::nodeLoopOps() {
   for (vector<MemberListEntry>::iterator iter = memberNode->memberList.begin();
       iter != memberNode->memberList.end(); iter++) {
 
-    if (rand() % 6 != 0) {
-      continue;
-    }
+//    if (rand() % 6 != 0) {
+//      continue;
+//    }
 
     if (iter->timestamp + TREMOVE < par->getcurrtime()) {
       Address addr = getAddressFromEntry(*iter);

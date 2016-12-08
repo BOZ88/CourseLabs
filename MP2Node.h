@@ -19,6 +19,20 @@
 #include "Message.h"
 #include "Queue.h"
 
+
+class Transaction {
+public:
+    Transaction(int transactionId, int timestamp, MessageType type, string key, string value)
+			: transID(transactionId), timestamp(timestamp), type(type),
+			  key(key), value(value), status(true) {}
+	int transID;
+    int timestamp;
+    MessageType type;
+    string key;
+    string value;
+    bool status;
+};
+
 /**
  * CLASS NAME: MP2Node
  *
@@ -37,6 +51,10 @@ private:
 	vector<Node> haveReplicasOf;
 	// Ring
 	vector<Node> ring;
+    vector<Node> oldRing;
+    // transaction id, q
+    map<int, int> quorum;
+    map<int, Transaction> transactionMap;
 	// Hash Table
 	HashTable * ht;
 	// Member representing this member
@@ -57,6 +75,7 @@ public:
 	// ring functionalities
 	void updateRing();
 	vector<Node> getMembershipList();
+
 	size_t hashFunction(string key);
 	void findNeighbors();
 
@@ -78,17 +97,25 @@ public:
 
 	// find the addresses of nodes that are responsible for a key
 	vector<Node> findNodes(string key);
+    vector<Node> findNodes(string key, vector<Node>& ring);
 
 	// server
 	bool createKeyValue(string key, string value, ReplicaType replica);
 	string readKey(string key);
 	bool updateKeyValue(string key, string value, ReplicaType replica);
-	bool deletekey(string key);
+	bool deleteKey(string key);
 
 	// stabilization protocol - handle multiple failures
 	void stabilizationProtocol();
 
 	~MP2Node();
+  void handleReply(Message &msg);
+  void handleCreate(Message &msg);
+  void handleTimeout();
+  void handleUpdate(Message message);
+  void handleDelete(Message msg);
+  void handleRead(Message msg);
+  void handleReadReply(Message msg);
 };
 
 #endif /* MP2NODE_H_ */
