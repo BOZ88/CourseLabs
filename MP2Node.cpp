@@ -429,7 +429,7 @@ void MP2Node::stabilizationProtocol() {
     log->LOG(&this->memberNode->addr, "memberlist change");
   }
 
-  for (auto it = ht->hashTable.begin(); it != ht->hashTable.end(); ) {
+  for (auto it = ht->hashTable.begin(); it != ht->hashTable.end();  it++) {
     vector<Node> nodes = findNodes(it->first, this->ring);
     vector<Node> oldNodes = findNodes(it->first, this->oldRing);
 
@@ -445,19 +445,17 @@ void MP2Node::stabilizationProtocol() {
     }
     if (strcmp(oldNodes[1].nodeAddress.addr, nodes[1].nodeAddress.addr) != 0) {
       Message msg = Message(0, this->memberNode->addr, CREATE, key, entry.value, SECONDARY);
-      this->emulNet->ENsend(&(this->memberNode->addr), &(nodes[0].nodeAddress), msg.toString());
+      this->emulNet->ENsend(&(this->memberNode->addr), &(nodes[1].nodeAddress), msg.toString());
     }
     if (strcmp(oldNodes[2].nodeAddress.addr, nodes[2].nodeAddress.addr) != 0) {
       Message msg = Message(0, this->memberNode->addr, CREATE, key, entry.value, TERTIARY);
-      this->emulNet->ENsend(&(this->memberNode->addr), &(nodes[0].nodeAddress), msg.toString());
+      this->emulNet->ENsend(&(this->memberNode->addr), &(nodes[2].nodeAddress), msg.toString());
     }
 
     if (strcmp(this->memberNode->addr.addr, nodes[0].nodeAddress.addr) != 0
        && strcmp(this->memberNode->addr.addr, nodes[1].nodeAddress.addr) != 0
        && strcmp(this->memberNode->addr.addr, nodes[2].nodeAddress.addr) != 0) {
-      it = ht->hashTable.erase(it);
-    } else {
-      it++;
+      it->second = "";
     }
   }
 
