@@ -425,9 +425,6 @@ int MP2Node::enqueueWrapper(void *env, char *buff, int size) {
  *				Note:- "CORRECT" replicas implies that every key is replicated in its two neighboring nodes in the ring
  */
 void MP2Node::stabilizationProtocol() {
-  if (this->ring.size() != this->oldRing.size()) {
-    log->LOG(&this->memberNode->addr, "memberlist change");
-  }
 
   for (auto it = ht->hashTable.begin(); it != ht->hashTable.end();  it++) {
     vector<Node> nodes = findNodes(it->first, this->ring);
