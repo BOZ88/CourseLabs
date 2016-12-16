@@ -22,8 +22,8 @@ for iter = 1:num_iters
     %theta(2) = oldTheta(2) - alpha ./ m .* (ones(1, m) * ((X * oldTheta - y) .* X(:,2)));
     theta = oldTheta - alpha ./ m .* (ones(1,m) * ((X * oldTheta - y) .* X))';
 
-    oldTheta
-    theta
+    oldTheta;
+    theta;
     cost = computeCost(X, y, theta);
     
 
