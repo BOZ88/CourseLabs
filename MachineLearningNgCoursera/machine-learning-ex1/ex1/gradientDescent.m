@@ -18,9 +18,10 @@ for iter = 1:num_iters
     %
 
     oldTheta = theta;
-    theta(1) = oldTheta(1) - alpha ./ m .* (ones(1, m) * (X * oldTheta - y));
-    theta(2) = oldTheta(2) - alpha ./ m .* (ones(1, m) * ((X * oldTheta - y) .* X(:,2)));
-    
+    %theta(1) = oldTheta(1) - alpha ./ m .* (ones(1, m) * ((X * oldTheta - y) .* X(:,1)));
+    %theta(2) = oldTheta(2) - alpha ./ m .* (ones(1, m) * ((X * oldTheta - y) .* X(:,2)));
+    theta = oldTheta - alpha ./ m .* (ones(1,m) * ((X * oldTheta - y) .* X))';
+
     oldTheta;
     theta;
     cost = computeCost(X, y, theta);
