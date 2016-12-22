@@ -16,8 +16,8 @@ p = zeros(m, 1);
 %
 
 
-
-
+q = sigmoid(X * theta);
+p = round(q);
 
 
 
